@@ -27,6 +27,14 @@ export interface Env {
 
 export default {
 	async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-		return new Response('Hello World!');
+		const host = request.headers.get('host');
+		const origin = request.headers.get('origin');
+
+		if (!origin)
+			// short script to trigger a request with origin header
+			return new Response(`<script>fetch("/",{method:"POST"}).then(r=>r.text()).then(t=>document.body.innerHTML=t)</script>`, {
+				headers: { 'content-type': 'text/html' },
+			});
+		return new Response(`Hello from ${host}! Your request origin is ${origin}.`);
 	},
 };
